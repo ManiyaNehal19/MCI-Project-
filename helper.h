@@ -5,14 +5,14 @@
 #include "tm4c123gh6pm.h"
 
 // Function Prototypes
-void Delay_ms(int time_ms)
+void Delay_ms(int time_ms);
 void timer0_delay(int ms);
 void GPIO_Init(uint8_t port, uint8_t pin, uint8_t direction);
 void GPIO_Write(uint8_t port, uint8_t pin, uint8_t value);
 uint8_t GPIO_Read(uint8_t port, uint8_t pin);
 
-void PWM_Init(uint8_t module, uint8_t generator, uint8_t output, uint16_t period, uint16_t dutyCycle);
-void PWM_SetDutyCycle(uint8_t module, uint8_t output, uint16_t dutyCycle);
+void PWM_Init(uint8_t, uint8_t, uint8_t, uint8_t, uint16_t);
+void PWM_SetDutyCycle(uint8_t, uint8_t, uint16_t, uint16_t);
 
 void Timer_Init(uint8_t timer, uint32_t loadValue);
 void Timer_Start(uint8_t timer);
@@ -29,8 +29,8 @@ void UART_SendString(uint8_t uart_module, const char *str);
 // Function Definitions
 
 // GPIO Initialization
-void GPIO_Init(uint8_t port, uint8_t pin, uint8_t direction = 1) {
-    SYSCTL_RCGCGPIO |= (1 << port);
+void GPIO_Init(uint8_t port, uint8_t pin, uint8_t direction) {
+    SYSCTL->RCGCGPIO |= (1 << port);
 
     if (port == 0){
         GPIOA->DEN |= 	(1<< pin);
@@ -89,7 +89,7 @@ void GPIO_Init(uint8_t port, uint8_t pin, uint8_t direction = 1) {
 }
 
 // GPIO Write
-void GPIO_Write(uint8_t port, uint8_t pin, uint8_t value = 1) {
+void GPIO_Write(uint8_t port, uint8_t pin, uint8_t value) {
     if (port == 0){
         if (value)
             GPIOA->DATA |=  (1<< pin);
@@ -155,7 +155,7 @@ uint8_t GPIO_Read(uint8_t port, uint8_t pin) {
 }
 
 // PWM Initialization
-void PWM_Init(uint8_t module, uint8_t generator, uint8_t port, uint8_t pin, uint16_t loadValue = 5000) {
+void PWM_Init(uint8_t module, uint8_t generator, uint8_t port, uint8_t pin, uint16_t loadValue) {
     
     SYSCTL->RCGCPWM |= (1<<module);
     SYSCTL->RCGCGPIO|= (1<<port);
@@ -247,91 +247,11 @@ void PWM_Init(uint8_t module, uint8_t generator, uint8_t port, uint8_t pin, uint
 
         PWM1->ENABLE = 0x40; 
     }
-
-    else if (module == 2){
-        if (generator == 0){
-            PWM2->_0_CTL &= ~(1<<0);
-            PWM2->_0_CTL &= ~(1<<1);
-            PWM2->_0_GENA = ~0x0000008C;
-            PWM2->_0_LOAD = loadValue;
-            PWM2->_0_CMPA = loadValue-1;
-            PWM2->_0_CTL = 1;
-        }
-
-        else if (generator == 1){
-            PWM2->_1_CTL &= ~(1<<0);
-            PWM2->_1_CTL &= ~(1<<1);
-            PWM2->_1_GENA = ~0x0000008C;
-            PWM2->_1_LOAD = loadValue;
-            PWM2->_1_CMPA = loadValue-1;
-            PWM2->_1_CTL = 1;
-        }
-
-        else if (generator == 2){
-            PWM2->_2_CTL &= ~(1<<0);
-            PWM2->_2_CTL &= ~(1<<1);
-            PWM2->_2_GENA = ~0x0000008C;
-            PWM2->_2_LOAD = loadValue;
-            PWM2->_2_CMPA = loadValue-1;
-            PWM2->_2_CTL = 1;
-        }
-
-        else if (generator == 3){
-            PWM2->_3_CTL &= ~(1<<0);
-            PWM2->_3_CTL &= ~(1<<1);
-            PWM2->_3_GENA = ~0x0000008C;
-            PWM2->_3_LOAD = loadValue;
-            PWM2->_3_CMPA = loadValue-1;
-            PWM2->_3_CTL = 1;
-        }
-
-        PWM2->ENABLE = 0x40; 
-    }
-
-    else if (module == 3){
-        if (generator == 0){
-            PWM3->_0_CTL &= ~(1<<0);
-            PWM3->_0_CTL &= ~(1<<1);
-            PWM3->_0_GENA = ~0x0000008C;
-            PWM3->_0_LOAD = loadValue;
-            PWM3->_0_CMPA = loadValue-1;
-            PWM3->_0_CTL = 1;
-        }
-
-        else if (generator == 1){
-            PWM3->_1_CTL &= ~(1<<0);
-            PWM3->_1_CTL &= ~(1<<1);
-            PWM3->_1_GENA = ~0x0000008C;
-            PWM3->_1_LOAD = loadValue;
-            PWM3->_1_CMPA = loadValue-1;
-            PWM3->_1_CTL = 1;
-        }
-
-        else if (generator == 2){
-            PWM3->_2_CTL &= ~(1<<0);
-            PWM3->_2_CTL &= ~(1<<1);
-            PWM3->_2_GENA = ~0x0000008C;
-            PWM3->_2_LOAD = loadValue;
-            PWM3->_2_CMPA = loadValue-1;
-            PWM3->_2_CTL = 1;
-        }
-
-        else if (generator == 3){
-            PWM3->_3_CTL &= ~(1<<0);
-            PWM3->_3_CTL &= ~(1<<1);
-            PWM3->_3_GENA = ~0x0000008C;
-            PWM3->_3_LOAD = loadValue;
-            PWM3->_3_CMPA = loadValue-1;
-            PWM3->_3_CTL = 1;
-        }
-
-        PWM3->ENABLE = 0x40; 
-    }
 }
 
 // PWM Set Duty Cycle
-void PWM_SetDutyCycle(uint8_t module, uint8_t generator, uint16_t dutyCycle) {
-    uint8_t actualCycle = (4999 * (100 - dutyCycle)) / 100;
+void PWM_SetDutyCycle(uint8_t module, uint8_t generator, uint16_t dutyCycle, uint16_t setCycle) {
+    uint8_t actualCycle = (setCycle * (100 - dutyCycle)) / 100;
 
     if (module == 0){
         if (generator == 0)
@@ -353,27 +273,8 @@ void PWM_SetDutyCycle(uint8_t module, uint8_t generator, uint16_t dutyCycle) {
         else if (generator == 3)
             PWM1->_3_CMPA = actualCycle;
     }
-    else if (module == 2){
-        if (generator == 0)
-            PWM2->_0_CMPA = actualCycle;
-        else if (generator == 1)
-            PWM2->_1_CMPA = actualCycle;
-        else if (generator == 2)
-            PWM2->_2_CMPA = actualCycle;
-        else if (generator == 3)
-            PWM2->_3_CMPA = actualCycle;
-    }
-    else if (module == 3){
-        if (generator == 0)
-            PWM3->_0_CMPA = actualCycle;
-        else if (generator == 1)
-            PWM3->_1_CMPA = actualCycle;
-        else if (generator == 2)
-            PWM3->_2_CMPA = actualCycle;
-        else if (generator == 3)
-            PWM3->_3_CMPA = actualCycle;
-    }
 }
+
 
 // UART Initialization
 void UART_Init(uint8_t uart_module, uint32_t baud_rate) {

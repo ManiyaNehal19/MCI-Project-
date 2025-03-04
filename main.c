@@ -1,6 +1,6 @@
 #include "helper.h"
 
-int initial_cycle = 100;
+uint16_t initial_cycle = 100;
 
 void Turn_AntiClockwise(void);
 void Turn_Clockwise(void);
@@ -8,21 +8,21 @@ void Turn_Clockwise(void);
 int main(void)
 {
 
-    GPIO_Init(0, 2); //Init PA2 
-    GPIO_Init(0, 3); //Init PA3
+    GPIO_Init(0, 2, 1); //Init PA2 
+    GPIO_Init(0, 3, 1); //Init PA3
    
-    PWM_Init(1, 3, 5, 2); //PWM(1) with Generator (3) and Pin P(F)(2)
+    PWM_Init(1, 3, 5, 2, 5000); //PWM(1) with Generator (3) and Pin P(F)(2)
 
-    PWM_SetDutyCycle(1, 3, initial_cycle);
+    PWM_SetDutyCycle(1, 3, initial_cycle, 4999);
 
     Turn_AntiClockwise();
     while(1)
     {
         initial_cycle = initial_cycle - 1;
         if (initial_cycle <= 0) 
-			initial_cycle = 100;
+					initial_cycle = 100;
 
-        PWM_SetDutyCycle(1, 3, initial_cycle);
+        PWM_SetDutyCycle(1, 3, initial_cycle, 4999);
 
         Delay_ms(100);
     }
