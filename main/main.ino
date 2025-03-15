@@ -20,6 +20,15 @@ void setup() {
     pinMode(enB, OUTPUT);
     pinMode(in3, OUTPUT);
     pinMode(in4, OUTPUT);
+    
+    pinMode(trigF, OUTPUT);
+    pinMode(echoF, INPUT);
+    
+    pinMode(trigL, OUTPUT);
+    pinMode(echoL, INPUT);
+    
+    pinMode(trigR, OUTPUT);
+    pinMode(echoR, INPUT);
 
     // Move forward at 50% speed
     moveForward();
