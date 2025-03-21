@@ -42,6 +42,6 @@ long get_right_distance()
 long get_speed_cmPerMicrosec()
 {
   long initial_distance = get_front_distance();
-  delayMicroseconds(200);
+  delay(200);
   return (get_front_distance() - initial_distance)/200;
 }
