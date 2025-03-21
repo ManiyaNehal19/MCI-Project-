@@ -61,9 +61,10 @@ void setup() {
     
     // Move forward at 50% speed
 
-    delay(2000);
+    
     stop_car();
     light_white();
+    delay(2000);
 
     //PID_stable();
 }
