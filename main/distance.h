@@ -45,3 +45,27 @@ long get_speed_cmPerMicrosec()
   delay(200);
   return (get_front_distance() - initial_distance)/200;
 }
+
+void checkSideDistances(long left_distance_cm,long right_distance_cm) {
+    if (left_distance_cm < 7) {
+        light_red();
+        light_left_on();
+        stop_car();
+       delay(100);
+        turnRight(90);
+        turnLeft(35);
+        moveForward();
+        return;
+    }
+
+    if (right_distance_cm <7) {
+        light_red();
+        light_right_on();
+        stop_car();
+        delay(100);
+        turnLeft(90);
+        turnRight(35 );
+        moveForward();
+        return;
+    }
+}
