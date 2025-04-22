@@ -2,6 +2,7 @@
 #include "led.h"           // Light Connection
 #include "movement.h"     // Motion library for movements
 #include "distance.h"      // Measure Distances through sensors
+#include "buzzer.h"
 
 #include <Wire.h>
 
@@ -17,8 +18,7 @@ long right_distance_cm = 0;
 long speed = 0;
 int stopDetect=0;     //For different color detection 
 char received;  
-bool flagOff = false;
-bool flagOn = false;
+bool start = true;
 ///////////////////////  Main Code  ////////////////////////
 
 void setup() {
@@ -28,6 +28,9 @@ void setup() {
 
   
     Serial.begin(9600); // Serial for debugging
+
+
+    pinMode(BUZZER_PIN, OUTPUT);
 
     // Set motor control pins as OUTPUT
     pinMode(enA, OUTPUT);
@@ -60,76 +63,87 @@ void setup() {
     pinMode(redLED, OUTPUT);
     pinMode(greenLED, OUTPUT);
     pinMode(blueLED, OUTPUT);
+    pinMode(rightLED, OUTPUT);
+    pinMode(leftLED, OUTPUT);
     
     // Move forward at 50% speed
+    //music();
+    //digitalWrite(BUZZER_PIN, LOW);
+
+    light_right_off();
+    light_left_off();
         
     stop_car();
     light_white();
     delay(2000);
+    
 
     //PID_stable();
 }
 void loop() {
-    // Read sensor values
-    front_distance_cm = get_front_distance();
-    left_distance_cm = get_left_distance();
-    right_distance_cm = get_right_distance();
+
+    
+    
 
     // Bluetooth string receiving logic
     if (Serial.available() > 0) {
-        String input = Serial.readString();   // read entire string sent
-        input.trim();                         // remove \n or \r characters
+        char input = Serial.read();   // read entire string sent
+        //input.trim();                         // remove \n or \r characters
 
-        Serial.println("Received: " + input); // debug
+        Serial.println(input); // debug
 
-        if (input == "stop") {
-            flagOff = true;
-            flagOn = false;
-            Serial.println("Car stopped via Bluetooth");
+        if (input == '2') {
+            start = true;
+            Serial.println("Car start via Bluetooth");
            
         }
-        if (input == "start") {
+        if (input == '3') {
            
-            flagOff = false;
-            flagOn = true;
+            start = false;
             Serial.println("Car stopped via Bluetooth");
            
         }
     }
-    if(flagOff){
+    if(start == false){
        stop_car();
        light_green(); // maybe show green when stopped
       }
 
     // If "stop" wasn't received, continue normal logic
-    else if(flagOn){
+    else if(start){
+        // Read sensor values
+        front_distance_cm = get_front_distance();
+        left_distance_cm = get_left_distance();
+        right_distance_cm = get_right_distance();
+        Serial.print("Front Distance: ");
+        Serial.println(front_distance_cm);
+        
+        Serial.print("Left Distance: ");
+        Serial.println(left_distance_cm);
+  
+        Serial.print("Right Distance: ");
+        Serial.println(right_distance_cm);
         moveForward();
-        if (front_distance_cm < 40) {
+        if (front_distance_cm < 28) {
             light_red();
             stop_car();
-            delay(200);
-            if (left_distance_cm >40) {
-                turnLeft(430);
-            } else if (right_distance_cm > 40) {
-                turnRight(430);
+            delay(300);
+            
+            if (left_distance_cm >20) {
+                light_left_on();
+                turnLeft(482);
+                
             }
-        } else {
-            if (left_distance_cm < 12) {
-                light_red();
-                stop_car();
-                delay(200);
-                turnRight(85);
-            } else if (right_distance_cm < 12) {
-                light_red();
-                stop_car();
-                delay(200);
-                turnLeft(85);
-            }
-        }
-
-        light_blue();
+//            } else if (right_distance_cm > 30) {
+//                light_right_on();
+//                turnRight(470);
+//            }
+            light_right_off();
+            light_left_off();
+            
+        } else{
+          checkSideDistances(left_distance_cm, right_distance_cm);
+    }
+     light_blue();
     }
 }
-
-
-
